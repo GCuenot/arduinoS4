@@ -1,7 +1,7 @@
 # Définition des variables
 CC = gcc
 CFLAGS = -Wall -g
-LIBS = -lGL -lGLU -lglut -lX11
+LIBS = -lGL -lGLU -lglut -lX11 -lserialport
 
 # Nom de l'exécutable
 TARGET = main
