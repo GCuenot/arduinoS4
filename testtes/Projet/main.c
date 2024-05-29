@@ -39,7 +39,7 @@
 static int dernierEtatClic = 0; // Déclaration de la variable globale
 
 struct sp_port* serial_port; // Pointeur vers le port série
-
+struct sp_port* open_serial_port_read(const char* port_name);
 
 
 // Déclaration de la fonction pour ouvrir le port série
@@ -58,44 +58,43 @@ void gestionEvenement(EvenementGfx evenement);
 
 
 
-int main(int argc, char **argv){
-
-    srand(time(NULL));
-
-
-
-    // Ouverture du port série
-
-    const char* port_name = "/dev/ttyACM0"; // Changez cela selon le port série de votre Arduino
-
-    serial_port = open_serial_port(port_name);
-
-    if (serial_port == NULL) {
-
-        return 1;
-
-    }
-
-
-
-    initialiseGfx(argc, argv);
-
-    prepareFenetreGraphique("GfxLib", LARGEUR_FENETRE, HAUTEUR_FENETRE);
-
-    lanceBoucleEvenements();
-
-
-
-    // Fermeture du port série
-
-    sp_close(serial_port);
-
-    sp_free_port(serial_port);
-
-
-
-    return 0;
-
+int main(int argc, char **argv){ 
+    srand(time(NULL)); 
+    // Ouverture du port série 
+    const char* port_name = "/dev/ttyACM0"; // Changez cela selon le port série de votre Arduino 
+    serial_port = open_serial_port(port_name); 
+    if (serial_port == NULL) { 
+        return 1; 
+    } 
+    struct sp_port* serial_port = open_serial_port_read(port_name); 
+    if (serial_port == NULL) { 
+        return 1; 
+    } 
+    // Lecture en boucle des caractères depuis le port série 
+    while (1) { 
+        unsigned char buffer[1]; // Buffer pour stocker le caractère reçu 
+        int bytes_read = sp_blocking_read(serial_port, buffer, 1, 1000); // Lecture bloquante d'un caractère 
+        if (bytes_read > 0) { 
+            //printf("Caractère reçu : %c\n", buffer[0]); 
+            if (buffer[0] == 'N') 
+            { 
+                printf("IL Y A UN INTRUS !!!!!!\n"); 
+                sleep(1); 
+            } 
+        } 
+        else if (bytes_read < 0) 
+        { 
+            fprintf(stderr, "Erreur de lecture sur le port série\n"); 
+            break; 
+        } 
+    } 
+    initialiseGfx(argc, argv); 
+    prepareFenetreGraphique("GfxLib", LARGEUR_FENETRE, HAUTEUR_FENETRE); 
+    lanceBoucleEvenements(); 
+    // Fermeture du port série 
+    sp_close(serial_port); 
+    sp_free_port(serial_port); 
+    return 0; 
 }
 
 
@@ -306,7 +305,27 @@ void gestionEvenement(EvenementGfx evenement) {
 
 }
 
-
+struct sp_port* open_serial_port_read(const char* port_name) 
+{ 
+    struct sp_port* port; 
+    enum sp_return result = sp_get_port_by_name(port_name, &port); 
+    if (result != SP_OK) { 
+        fprintf(stderr, "Erreur: Impossible d'obtenir le port série\n"); 
+        return NULL; 
+    } 
+    result = sp_open(port, SP_MODE_READ); 
+    if (result != SP_OK) { 
+        fprintf(stderr, "Erreur: Impossible d'ouvrir le port série\n"); 
+        return NULL; 
+    } 
+    result = sp_set_baudrate(port, 9600); 
+    if (result != SP_OK) { 
+        fprintf(stderr, "Erreur: Impossible de régler la vitesse en bauds\n"); 
+        sp_close(port); 
+        return NULL; 
+    } 
+    return port; 
+}
 
 // Fonction pour ouvrir le port série
 
