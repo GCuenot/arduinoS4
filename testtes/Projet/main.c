@@ -362,6 +362,20 @@ void *read_serial_port(void *arg) {
         int bytes_read = sp_nonblocking_read(port, buffer, sizeof(buffer));
         if (bytes_read > 0 && buffer[0] == 'N' && soundOn == true) {
             printf("INTRUS !!!!! \n");
+
+            // Obtenir la date et l'heure actuelles
+                char datetime[20];
+                getFormattedDateTime(datetime, sizeof(datetime));
+
+                // Construire le nom du fichier
+                char command[256];
+                snprintf(command, sizeof(command), "mkdir -p photos && ffmpeg -f v4l2 -video_size 640x480 -i /dev/video0 -frames:v 1 photos/photo_%s.png", datetime);
+
+
+                // Prendre une capture d'écran
+                system(command);
+
+
             writeToLogFile("INTRUS !!!!!");
         } else if (bytes_read > 0 && buffer[0] == 'N' && soundOn == false) {
             printf("IL Y A QUELQU'UN DEVANT LA PORTE !!!!!\n");
