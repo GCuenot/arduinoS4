@@ -389,5 +389,5 @@ void getFormattedDateTime(char *buffer, size_t bufferSize) {
     time(&rawtime);
     timeinfo = localtime(&rawtime);
 
-    strftime(buffer, bufferSize, "%Y%m%d_%H%M%S", timeinfo);
+    strftime(buffer, bufferSize, "%Y-%m-%d_%H:%M:%S", timeinfo);
 }
