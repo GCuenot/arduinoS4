@@ -29,6 +29,7 @@ struct sp_port *open_serial_port(const char *port_name);
 void *read_serial_port(void *arg);
 void send_command(struct sp_port *port, char command);
 void gestionEvenement(EvenementGfx evenement);
+void writeToLogFile(const char *message);
 
 int main(int argc, char **argv)
 {
@@ -271,6 +272,8 @@ void gestionEvenement(EvenementGfx evenement)
                 char command[256];
                 snprintf(command, sizeof(command), "mkdir -p photos && ffmpeg -f v4l2 -video_size 640x480 -i /dev/video0 -frames:v 1 photos/photo_%s.png", datetime);
 
+                captureEcran = true;
+
                 // Prendre une capture d'écran
                 system(command);
 
@@ -283,6 +286,8 @@ void gestionEvenement(EvenementGfx evenement)
             clicSurFlecheGauche = false;
             clicSurFlecheHaut = false;
             clicSurFlecheBas = false;
+            captureEcran = false;
+
             rafraichisFenetre();
         }
         break;
@@ -329,20 +334,17 @@ struct sp_port *open_serial_port(const char *port_name)
     return port;
 }
 
-void *read_serial_port(void *arg)
-{
+void *read_serial_port(void *arg) {
     struct sp_port *port = (struct sp_port *)arg;
     char buffer[1];
-    while (keep_running)
-    {
+    while (keep_running) {
         int bytes_read = sp_nonblocking_read(port, buffer, sizeof(buffer));
-        if (bytes_read > 0 && buffer[0] == 'N' && soundOn == true)
-        {
+        if (bytes_read > 0 && buffer[0] == 'N' && soundOn == true) {
             printf("INTRUS !!!!! \n");
-        }
-        else if (bytes_read > 0 && buffer[0] == 'N' && soundOn == false)
-        {
+            writeToLogFile("INTRUS !!!!!");
+        } else if (bytes_read > 0 && buffer[0] == 'N' && soundOn == false) {
             printf("IL Y A QUELQU'UN DEVANT LA PORTE !!!!!\n");
+            writeToLogFile("IL Y A QUELQU'UN DEVANT LA PORTE !!!!!");
         }
     }
     return NULL;
@@ -351,4 +353,21 @@ void *read_serial_port(void *arg)
 void send_command(struct sp_port *port, char command)
 {
     sp_nonblocking_write(port, &command, 1);
+}
+
+
+
+
+void writeToLogFile(const char *message) {
+    FILE *file = fopen("Historique_alerte.txt", "a");
+    if (file == NULL) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return;
+    }
+
+    char datetime[20];
+    getFormattedDateTime(datetime, sizeof(datetime));
+
+    fprintf(file, "[%s] %s\n", datetime, message);
+    fclose(file);
 }

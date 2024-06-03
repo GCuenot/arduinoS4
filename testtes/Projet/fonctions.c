@@ -24,6 +24,7 @@ bool clicSurFlecheDroite = false;
 bool clicSurFlecheGauche = false;
 bool clicSurFlecheHaut = false;
 bool clicSurFlecheBas = false;
+bool captureEcran = false;
 
 
 
@@ -266,7 +267,7 @@ void carrerec() {
     couleurCourante(255, 255, 255);  // Texte en blanc
     float taille = 15;
     float tailleTexte = tailleChaine("REC", taille);
-    float posX = coinX + (largeur - tailleTexte) / 2;
+    float posX = coinX + (largeur - tailleTexte) / 2.5;
     float posY = coinY - (hauteur / 2) - (taille / 2);
     afficheChaine("R E C", taille, posX, posY);
 }
@@ -281,15 +282,21 @@ void carreclic() {
     couleurCourante(0, 0, 0); // Couleur noire pour le contour
     rectangle(coinX, coinY, coinX + largeur, coinY - hauteur);
 
-    couleurCourante(70, 130, 180); // Couleur bleue pour le remplissage
+     if (captureEcran) {
+        couleurCourante(255,0,0); 
+    } else {
+        couleurCourante(0,0,0); 
+    }
+
+
     rectangle(coinX + 1, coinY - 1, coinX + largeur - 1, coinY - hauteur + 1);
 
     couleurCourante(255, 255, 255); // Couleur blanche pour le texte
     float taille = 17;
-    float tailleTexte = tailleChaine("CLIC", taille);
-    float posX = coinX + (largeur - tailleTexte) / 2;
+    float tailleTexte = tailleChaine("CAPTURE", taille);
+    float posX = coinX + (largeur - tailleTexte) / 4.5;
     float posY = coinY - (hauteur / 2) - (taille / 2);
-    afficheChaine("C L I C", taille, posX, posY);
+    afficheChaine("S C R E E N", taille, posX, posY);
 }
 
 
