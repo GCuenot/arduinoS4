@@ -268,35 +268,30 @@ void carrerec() {
     float tailleTexte = tailleChaine("REC", taille);
     float posX = coinX + (largeur - tailleTexte) / 2;
     float posY = coinY - (hauteur / 2) - (taille / 2);
-    afficheChaine("REC", taille, posX, posY);
+    afficheChaine("R E C", taille, posX, posY);
 }
 
 void carreclic() {
-    float coinX_CLIC = largeurFenetre() * 0.825; // Coin supérieur gauche du rectangle "CLIC"
-    float coinY_CLIC = hauteurFenetre() * 0.3; // Coin supérieur gauche du rectangle "CLIC"
-    float largeur_CLIC = largeurFenetre() * 0.15; // Largeur du rectangle "CLIC"
-    float hauteur_CLIC = hauteurFenetre() * 0.08; // Hauteur du rectangle "CLIC"
-    
-    epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
-    
-    // Dessin du rectangle avec bordures noires
-    couleurCourante(0, 0, 0); // Couleur des bordures en noir
-    rectangle(coinX_CLIC, coinY_CLIC, coinX_CLIC + largeur_CLIC, coinY_CLIC - hauteur_CLIC); // Dessin du rectangle
-    
-    epaisseurDeTrait(1); // Rétablir l'épaisseur par défaut pour le reste du dessin
-    
-    // Dessin du rectangle sans bordures
-    couleurCourante(70, 130, 180); // Remplissage orange
-    rectangle(coinX_CLIC + 1, coinY_CLIC - 1, coinX_CLIC + largeur_CLIC - 1, coinY_CLIC - hauteur_CLIC + 1); // Dessin du rectangle sans les bordures
-    
-    // Affichage du texte "CLIC"
-    couleurCourante(0, 0, 0); // Texte en blanc
-    float taille = 17; // Taille du texte
-    float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
-    float posX = coinX_CLIC - (tailleTexte / 1.45); // Position en X pour centrer le texte
-    float posY = coinY_CLIC; // Position en Y pour centrer le texte
-    afficheChaine("I N T R U S", taille, posX * 1.098, posY * 0.83); // Affichage du texte "CLIC"
+    float coinX = largeurFenetre() * 0.825;
+    float coinY = hauteurFenetre() * 0.1;
+    float largeur = largeurFenetre() * 0.15;
+    float hauteur = hauteurFenetre() * 0.08;
+
+    epaisseurDeTrait(3);
+    couleurCourante(0, 0, 0); // Couleur noire pour le contour
+    rectangle(coinX, coinY, coinX + largeur, coinY - hauteur);
+
+    couleurCourante(70, 130, 180); // Couleur bleue pour le remplissage
+    rectangle(coinX + 1, coinY - 1, coinX + largeur - 1, coinY - hauteur + 1);
+
+    couleurCourante(255, 255, 255); // Couleur blanche pour le texte
+    float taille = 17;
+    float tailleTexte = tailleChaine("CLIC", taille);
+    float posX = coinX + (largeur - tailleTexte) / 2;
+    float posY = coinY - (hauteur / 2) - (taille / 2);
+    afficheChaine("C L I C", taille, posX, posY);
 }
+
 
 void carre50cm(){
 

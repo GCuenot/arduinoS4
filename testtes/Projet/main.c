@@ -80,6 +80,7 @@ void gestionEvenement(EvenementGfx evenement)
             carre1m();
             carre5m();
             carrerec();
+            carreclic();
         }
         break;
 
@@ -254,6 +255,24 @@ void gestionEvenement(EvenementGfx evenement)
                     printf("Arrêt de l'enregistrement...\n");
                     system("pkill ffmpeg");
                 }
+
+                rafraichisFenetre();
+            }
+            else if (abscisseSouris() >= largeurFenetre() * 0.825 && abscisseSouris() <= largeurFenetre() * 0.975 &&
+                    ordonneeSouris() >= hauteurFenetre() * 0.02 && ordonneeSouris() <= hauteurFenetre() * 0.1)
+            {
+                printf("Bouton CLIC cliqué.\n");
+
+                // Obtenir la date et l'heure actuelles
+                char datetime[20];
+                getFormattedDateTime(datetime, sizeof(datetime));
+
+                // Construire le nom du fichier
+                char command[256];
+                snprintf(command, sizeof(command), "mkdir -p photos && ffmpeg -f v4l2 -video_size 640x480 -i /dev/video0 -frames:v 1 photos/photo_%s.png", datetime);
+
+                // Prendre une capture d'écran
+                system(command);
 
                 rafraichisFenetre();
             }
