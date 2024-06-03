@@ -13,6 +13,17 @@
 #include <GL/glut.h>
 
 
+bool soundOn = true;
+
+bool bouton50cmClique = true;
+bool bouton1mClique = false;
+bool bouton5mClique = false;
+
+bool clicSurFlecheDroite = false;
+bool clicSurFlecheGauche = false;
+bool clicSurFlecheHaut = false;
+bool clicSurFlecheBas = false;
+
 
 
 
@@ -32,12 +43,13 @@ void flechedroite(){
 	int y2 = (hauteurFenetre()) -((hauteurFenetre() / 10) * 4.5);
 
 
-	couleurCourante(0,0,0);
-	//void rectangle(float xCoin1, float yCoin1, float xCoin2, float yCoin2);
+	if (clicSurFlecheDroite) {
+        couleurCourante(255,255,255); // Change la couleur en blanc pendant le clic
+    } else {
+        couleurCourante(0,0,0); // Reviens à la couleur noire lorsque le clic est relâché
+    }
+
 	rectangle(x1,y1,x2,y2);
-	// Dessine un triangle de couleur courante aux coordonnees donnees
-	couleurCourante(0,0,0);
-	//void triangle(float xCoin1, float yCoin1, float xCoin2, float yCoin2, float xCoin3, float yCoin3);
 	triangle(x2,y2,x2 + ((x2-x1)/4),y1+((y2-y1)/2),x2,y1);
 
 	/* Dessine une ligne de couleur courante aux coordonnees donnees */
@@ -67,14 +79,14 @@ void flechegauche(){
 	
 	int x2milieu = largeurFenetre() - x1;
 
+    if (clicSurFlecheGauche) {
+        couleurCourante(255,255,255); // Change la couleur en blanc pendant le clic
+    } else {
+        couleurCourante(0,0,0); // Reviens à la couleur noire lorsque le clic est relâché
+    }
 
-
-	couleurCourante(0,0,0);
-	//void rectangle(float xCoin1, float yCoin1, float xCoin2, float yCoin2);
+	
 	rectangle(x1milieu,y1,x2milieu,y2);
-	// Dessine un triangle de couleur courante aux coordonnees donnees
-	couleurCourante(0,0,0);
-	// void triangle(float xCoin1, float yCoin1, float xCoin2, float yCoin2, float xCoin3, float yCoin3);
 	triangle(x1milieu,y1,largeurFenetre() -(x2 + ((x2-x1)/4)),y1+((y2-y1)/2),x1milieu,y2);
 
 	// /* Dessine une ligne de couleur courante aux coordonnees donnees */
@@ -96,13 +108,14 @@ void flechehaut() {
     int y1 = (hauteurFenetre() / 2) + (largeurFenetre() / 12);
     int y2 = (hauteurFenetre() / 2) + ((hauteurFenetre() / 10) * 2.7);
 
-    // Couleur du rectangle
-    couleurCourante(0, 0, 0);
-    // Dessine le rectangle
-    rectangle(x1, y1, x2, y2);
 
-    // // Dessine un triangle pour la pointe de la flèche
-    couleurCourante(0, 0, 0);
+    if (clicSurFlecheHaut) {
+        couleurCourante(255,255,255); // Change la couleur en blanc pendant le clic
+    } else {
+        couleurCourante(0,0,0); // Reviens à la couleur noire lorsque le clic est relâché
+    }
+
+    rectangle(x1, y1, x2, y2);
     triangle(x1,y2,x1 +((x2-x1)/2), y2 * 1.05,x2, y2);
 
     // // Dessine les lignes blanches à l'intérieur de la flèche
@@ -123,13 +136,15 @@ void flechebas() {
     int y1 = (hauteurFenetre() / 2) - ((hauteurFenetre() / 10) * 2.7);
     int y2 = (hauteurFenetre() / 2) - (largeurFenetre() / 12);
 
-    // Couleur du rectangle
-    couleurCourante(0, 0, 0);
-    // Dessine le rectangle
-    rectangle(x1, y1, x2, y2);
 
-    // Dessine un triangle pour la pointe de la flèche
-    couleurCourante(0, 0, 0);
+    if (clicSurFlecheBas) {
+        couleurCourante(255,255,255); // Change la couleur en blanc pendant le clic
+    } else {
+        couleurCourante(0,0,0); // Reviens à la couleur noire lorsque le clic est relâché
+    }
+
+
+    rectangle(x1, y1, x2, y2);
     triangle(x1, y1, x1 + ((x2 - x1) / 2), y1 - ((y2 - y1) * 0.30), x2, y1);
 
     // Dessine les lignes blanches à l'intérieur de la flèche
@@ -179,12 +194,33 @@ void cercleOnOff() {
     epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
     
     // Dessin du cercle avec bordures noires
+    dessineCercle(centreX, centreY, rayon, 0, 255, 0, 0, 0, 0); // Cercle rouge avec bord noir
+    
+    epaisseurDeTrait(1); // Rétablir l'épaisseur par défaut pour le reste du dessin
+    
+    // Affichage du texte "ON / OFF"
+    couleurCourante(0, 0, 0); // Texte en blanc
+    float taille = 15; // Taille du texte
+    float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
+    float posX = centreX - (tailleTexte / 1.45); // Position en X pour centrer le texte
+    float posY = centreY * 0.99; // Position en Y pour centrer le texte
+    afficheChaine("O N / O F F", taille, posX, posY); // Affichage du texte centré dans le cercle
+}
+
+void cercleOnOff2() {
+    float centreX = largeurFenetre() * 0.9; // Ajustez ces valeurs pour positionner le cercle
+    float centreY = hauteurFenetre() * 0.85; // à 50 pixels du coin supérieur droit
+    float rayon = largeurFenetre() * 0.07; // Rayon du cercle
+    
+    epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
+    
+    // Dessin du cercle avec bordures noires
     dessineCercle(centreX, centreY, rayon, 255, 0, 0, 0, 0, 0); // Cercle rouge avec bord noir
     
     epaisseurDeTrait(1); // Rétablir l'épaisseur par défaut pour le reste du dessin
     
     // Affichage du texte "ON / OFF"
-    couleurCourante(255, 255, 255); // Texte en blanc
+    couleurCourante(0, 0, 0); // Texte en blanc
     float taille = 15; // Taille du texte
     float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
     float posX = centreX - (tailleTexte / 1.45); // Position en X pour centrer le texte
@@ -194,30 +230,26 @@ void cercleOnOff() {
 
 
 void rectanglesoundOnOff() {
-    float coinX = largeurFenetre() * 0.825; // Coin supérieur gauche du rectangle
-    float coinY = hauteurFenetre() * 0.65; // Coin supérieur gauche du rectangle
-    float largeur = largeurFenetre() * 0.15; // Largeur du rectangle
-    float hauteur = hauteurFenetre() * 0.08; // Hauteur du rectangle
-    
-    epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
-    
-    // Dessin du rectangle avec bordures noires
-    couleurCourante(0, 0, 0); // Couleur des bordures en noir
-    rectangle(coinX, coinY, coinX + largeur, coinY - hauteur); // Dessin du rectangle
-    
-    epaisseurDeTrait(1); // Rétablir l'épaisseur par défaut pour le reste du dessin
-    
-    // Dessin du rectangle sans bordures
-    couleurCourante(255, 128, 0); // Remplissage orange
-    rectangle(coinX + 1, coinY - 1, coinX + largeur - 1, coinY - hauteur + 1); // Dessin du rectangle sans les bordures
-    
-    // Affichage du texte "ON / OFF"
-    couleurCourante(255, 255, 255); // Texte en blanc
-    float taille = 18; // Taille du texte
-    float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
-    float posX = coinX - (tailleTexte / 1.45); // Position en X pour centrer le texte
-    float posY = coinY; // Position en Y pour centrer le texte
-    afficheChaine("S O U N D", taille, posX * 1.1, posY * 0.92); 
+    float coinX = largeurFenetre() * 0.825;
+    float coinY = hauteurFenetre() * 0.65;
+    float largeur = largeurFenetre() * 0.15;
+    float hauteur = hauteurFenetre() * 0.08;
+
+    epaisseurDeTrait(3);
+    if (soundOn == false) {
+        couleurCourante(255, 0, 0); 
+    } else  if (soundOn == true){
+        couleurCourante(0, 200, 0); 
+
+    }
+    rectangle(coinX, coinY, coinX + largeur, coinY - hauteur);
+
+    couleurCourante(0, 0, 0); // Texte en noir
+    float taille = 15;
+    float tailleTexte = tailleChaine("Sound ON/OFF", taille);
+    float posX = coinX + (largeur - tailleTexte) / 2;
+    float posY = coinY - (hauteur / 2) - (taille / 2);
+    afficheChaine("Sound ON/OFF", taille, posX, posY);
 }
 
 void carrerec() {
@@ -239,12 +271,12 @@ void carrerec() {
     rectangle(coinX_REC + 1, coinY_REC - 1, coinX_REC + largeur_REC - 1, coinY_REC - hauteur_REC + 1); // Dessin du rectangle sans les bordures
     
     // Affichage du texte "REC"
-    couleurCourante(255, 255, 255); // Texte en blanc
+    couleurCourante(0, 0, 0); // Texte en blanc
     float taille = 17; // Taille du texte
     float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
     float posX = coinX_REC - (tailleTexte / 1.45); // Position en X pour centrer le texte
     float posY = coinY_REC; // Position en Y pour centrer le texte
-    afficheChaine("R E C O R D", taille, posX * 1.095, posY * 0.87);  // Affichage du texte "REC"
+    afficheChaine("V O I S I N", taille, posX * 1.095, posY * 0.87);  // Affichage du texte "REC"
 }
 
 void carreclic() {
@@ -266,13 +298,103 @@ void carreclic() {
     rectangle(coinX_CLIC + 1, coinY_CLIC - 1, coinX_CLIC + largeur_CLIC - 1, coinY_CLIC - hauteur_CLIC + 1); // Dessin du rectangle sans les bordures
     
     // Affichage du texte "CLIC"
-    couleurCourante(255, 255, 255); // Texte en blanc
+    couleurCourante(0, 0, 0); // Texte en blanc
     float taille = 17; // Taille du texte
     float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
     float posX = coinX_CLIC - (tailleTexte / 1.45); // Position en X pour centrer le texte
     float posY = coinY_CLIC; // Position en Y pour centrer le texte
-    afficheChaine("S C R E E N", taille, posX * 1.098, posY * 0.83); // Affichage du texte "CLIC"
+    afficheChaine("I N T R U S", taille, posX * 1.098, posY * 0.83); // Affichage du texte "CLIC"
 }
+
+void carre50cm(){
+
+
+    float coinX = largeurFenetre() * 0.828; // Coin supérieur gauche du rectangle "REC"
+    float coinY = hauteurFenetre() * 0.5; // Coin supérieur gauche du rectangle "REC"
+    float largeur = largeurFenetre() * 0.05; // Largeur du rectangle "REC"
+    float hauteur = hauteurFenetre() * 0.08; // Hauteur du rectangle "REC"
+    
+    epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
+    
+    
+
+    
+    if (bouton50cmClique) {
+        couleurCourante(255, 255, 255); // Blanc
+    } else {
+        couleurCourante(192, 192, 192); // Gris
+    }
+    rectangle(coinX + 1, coinY- 1, coinX+ largeur - 1, coinY- hauteur + 1); // Dessin du rectangle sans les bordures
+    
+  
+    couleurCourante(0, 0, 0); 
+    float taille = 15; // Taille du texte
+    float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
+    float posX = coinX - (tailleTexte / 1.15); // Position en X pour centrer le texte
+    float posY = coinY * 1.045; // Position en Y pour centrer le texte
+    afficheChaine("50cm", taille, posX * 1.095, posY * 0.87);  // Affichage du texte "REC"
+}
+
+
+void carre1m(){
+
+
+    float coinX = largeurFenetre() * 0.878; // Coin supérieur gauche du rectangle "REC"
+    float coinY = hauteurFenetre() * 0.5; // Coin supérieur gauche du rectangle "REC"
+    float largeur = largeurFenetre() * 0.05; // Largeur du rectangle "REC"
+    float hauteur = hauteurFenetre() * 0.08; // Hauteur du rectangle "REC"
+    
+    epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
+    
+    if (bouton1mClique) {
+        couleurCourante(255, 255, 255); // Blanc
+    } else {
+        couleurCourante(192, 192, 192); // Gris
+    }
+    rectangle(coinX + 1, coinY- 1, coinX+ largeur - 1, coinY- hauteur + 1); // Dessin du rectangle sans les bordures
+    
+  
+    couleurCourante(0, 0, 0); 
+    float taille = 15; // Taille du texte
+    float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
+    float posX = coinX - (tailleTexte / 1.2); // Position en X pour centrer le texte
+    float posY = coinY * 1.045; // Position en Y pour centrer le texte
+    afficheChaine("1m", taille, posX * 1.095, posY * 0.87);  // Affichage du texte "REC"
+}
+
+
+void carre5m(){
+
+
+    float coinX = largeurFenetre() * 0.928; // Coin supérieur gauche du rectangle "REC"
+    float coinY = hauteurFenetre() * 0.5; // Coin supérieur gauche du rectangle "REC"
+    float largeur = largeurFenetre() * 0.05; // Largeur du rectangle "REC"
+    float hauteur = hauteurFenetre() * 0.08; // Hauteur du rectangle "REC"
+    
+    epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
+    
+   
+   if (bouton5mClique) {
+        couleurCourante(255, 255, 255); // Blanc
+    } else {
+        couleurCourante(192, 192, 192); // Gris
+    }
+    rectangle(coinX + 1, coinY- 1, coinX+ largeur - 1, coinY- hauteur + 1); // Dessin du rectangle sans les bordures
+    
+  
+    couleurCourante(0, 0, 0); 
+    float taille = 15; // Taille du texte
+    float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
+    float posX = coinX - (tailleTexte / 1.13); // Position en X pour centrer le texte
+    float posY = coinY * 1.045; // Position en Y pour centrer le texte
+    afficheChaine("5m", taille, posX * 1.095, posY * 0.87);  // Affichage du texte "REC"
+}
+
+
+
+
+
+
 
 
 
