@@ -84,7 +84,28 @@ void gestionEvenement(EvenementGfx evenement)
             carreclic();
         }
         break;
+    case ClavierSpecial:
 
+        if (toucheClavier() == ToucheFlecheHaut) {
+                printf("Touche flèche haut pressée.\n");
+                send_command(serial_port, 'H');
+            }
+
+        else if (toucheClavier() == ToucheFlecheBas) {
+                printf("Touche flèche bas pressée.\n");
+                send_command(serial_port, 'B');
+            }
+
+        else if (toucheClavier() == ToucheFlecheDroite) {
+                printf("Touche flèche droite pressée.\n");
+                send_command(serial_port, 'D');
+            }
+        else if (toucheClavier() == ToucheFlecheGauche) {
+                printf("Touche flèche gauche pressée.\n");
+                send_command(serial_port, 'G');
+            }
+
+        break;
     case Clavier:
         break;
 
