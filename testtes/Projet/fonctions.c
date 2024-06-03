@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stddef.h>
 #include <math.h>	// Pour pouvoir utiliser sin() et cos()
 #include "GfxLib.h" // Seul cet include est necessaire pour faire du graphique
 #include "BmpLib.h" // Cet include permet de manipuler des fichiers BMP
@@ -18,7 +19,7 @@ bool soundOn = true;
 bool bouton50cmClique = true;
 bool bouton1mClique = false;
 bool bouton5mClique = false;
-
+extern bool recOn;
 bool clicSurFlecheDroite = false;
 bool clicSurFlecheGauche = false;
 bool clicSurFlecheHaut = false;
@@ -253,30 +254,21 @@ void rectanglesoundOnOff() {
 }
 
 void carrerec() {
-    float coinX_REC = largeurFenetre() * 0.825; // Coin supérieur gauche du rectangle "REC"
-    float coinY_REC = hauteurFenetre() * 0.4; // Coin supérieur gauche du rectangle "REC"
-    float largeur_REC = largeurFenetre() * 0.15; // Largeur du rectangle "REC"
-    float hauteur_REC = hauteurFenetre() * 0.08; // Hauteur du rectangle "REC"
-    
-    epaisseurDeTrait(3); // Augmenter l'épaisseur des bordures
-    
-    // Dessin du rectangle avec bordures noires
-    couleurCourante(0, 0, 0); // Couleur des bordures en noir
-    rectangle(coinX_REC, coinY_REC, coinX_REC + largeur_REC, coinY_REC - hauteur_REC); // Dessin du rectangle
-    
-    epaisseurDeTrait(1); // Rétablir l'épaisseur par défaut pour le reste du dessin
-    
-    // Dessin du rectangle sans bordures
-    couleurCourante(70, 130, 180); // Remplissage orange
-    rectangle(coinX_REC + 1, coinY_REC - 1, coinX_REC + largeur_REC - 1, coinY_REC - hauteur_REC + 1); // Dessin du rectangle sans les bordures
-    
-    // Affichage du texte "REC"
-    couleurCourante(0, 0, 0); // Texte en blanc
-    float taille = 17; // Taille du texte
-    float tailleTexte = tailleChaine("ON / OFF", taille); // Taille du texte en X
-    float posX = coinX_REC - (tailleTexte / 1.45); // Position en X pour centrer le texte
-    float posY = coinY_REC; // Position en Y pour centrer le texte
-    afficheChaine("V O I S I N", taille, posX * 1.095, posY * 0.87);  // Affichage du texte "REC"
+    float coinX = largeurFenetre() * 0.825;
+    float coinY = hauteurFenetre() * 0.3;
+    float largeur = largeurFenetre() * 0.15;
+    float hauteur = hauteurFenetre() * 0.08;
+
+    epaisseurDeTrait(3);
+    couleurCourante(recOn ? 255 : 0, 0, 0);  // Rouge si enregistrement en cours, sinon noir
+    rectangle(coinX, coinY, coinX + largeur, coinY - hauteur);
+
+    couleurCourante(255, 255, 255);  // Texte en blanc
+    float taille = 15;
+    float tailleTexte = tailleChaine("REC", taille);
+    float posX = coinX + (largeur - tailleTexte) / 2;
+    float posY = coinY - (hauteur / 2) - (taille / 2);
+    afficheChaine("REC", taille, posX, posY);
 }
 
 void carreclic() {
@@ -390,14 +382,12 @@ void carre5m(){
     afficheChaine("5m", taille, posX * 1.095, posY * 0.87);  // Affichage du texte "REC"
 }
 
+void getFormattedDateTime(char *buffer, size_t bufferSize) {
+    time_t rawtime;
+    struct tm *timeinfo;
 
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
 
-
-
-
-
-
-
-
-
-
+    strftime(buffer, bufferSize, "%Y%m%d_%H%M%S", timeinfo);
+}

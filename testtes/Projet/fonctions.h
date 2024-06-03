@@ -30,6 +30,7 @@ void carreclic();
 void carre50cm();
 void carre1m();
 void carre5m();
+void getFormattedDateTime(char *buffer, size_t bufferSize);
 
 
 
