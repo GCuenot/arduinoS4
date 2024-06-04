@@ -4,7 +4,7 @@
 
 
 extern bool soundOn;
-// fonctions.h
+
 extern bool bouton50cmClique;
 extern bool bouton1mClique;
 extern bool bouton5mClique;
@@ -14,6 +14,14 @@ extern bool clicSurFlecheGauche;
 extern bool clicSurFlecheHaut;
 extern bool clicSurFlecheBas;
 extern bool captureEcran;
+
+
+
+typedef struct {
+    float x, y, largeur, hauteur;
+} Carre;
+
+extern Carre carres[10];
 
 
 
@@ -32,6 +40,10 @@ void carre50cm();
 void carre1m();
 void carre5m();
 void getFormattedDateTime(char *buffer, size_t bufferSize);
+void petitrond();
+void acceuil();
+void afficheDateHeure();
+void afficheTableauCarres();
 
 
 
