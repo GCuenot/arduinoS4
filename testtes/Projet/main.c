@@ -34,6 +34,13 @@ struct sp_port *serial_port;
 bool recOn = false;
 bool codeValide = false;
 time_t tempsErreur;
+int tentativesIncorrectes = 0;
+time_t debutBlocage = 0;
+bool estBloque = false;
+
+
+
+
 
 struct sp_port *open_serial_port(const char *port_name);
 void *read_serial_port(void *arg);
@@ -58,7 +65,7 @@ int main(int argc, char **argv)
     }
 
     initialiseGfx(argc, argv);
-    prepareFenetreGraphique("GfxLib", LARGEUR_FENETRE, HAUTEUR_FENETRE);
+    prepareFenetreGraphique("Camera: Anas,Emrys,Guillaume", LARGEUR_FENETRE, HAUTEUR_FENETRE);
     lanceBoucleEvenements();
 
     keep_running = 0;
@@ -75,26 +82,7 @@ void gestionEvenement(EvenementGfx evenement) {
 
     switch (evenement) {
         case Affichage:
-            if (affichageprimaire) {
-                afficheTableauCarres();
-                // Affichage du code saisi au-dessus des touches
-                char codeAffiche[5];
-                snprintf(codeAffiche, 5, "%d%d%d%d", codeSaisi[0], codeSaisi[1], codeSaisi[2], codeSaisi[3]);
-
-                if (time(NULL) - tempsErreur < 3) {
-                    couleurCourante(255, 0, 0); // Rouge
-                    rafraichisFenetre();
-                } else if (codeValide) {
-                    couleurCourante(0, 255, 0); // Vert
-                    rafraichisFenetre();
-                } else {
-                    couleurCourante(255, 255, 255); // Blanc par défaut
-                    rafraichisFenetre();
-                }
-
-                afficheChaine(codeAffiche, 35, (largeurFenetre() - (3 * 60 + 2 * 10)) / 1.79, hauteurFenetre() - (3 * 60 + 2 * 10));
-                rafraichisFenetre();
-            }
+		    
 
             if (affichageInitial && !affichageprimaire) {
                 afficheFondecran();
@@ -102,7 +90,8 @@ void gestionEvenement(EvenementGfx evenement) {
                 cercleOnOff2();
                 rafraichisFenetre();
                 acceuil();
-            } else if (!affichageInitial && !affichageprimaire) {
+            } 
+            else if (!affichageInitial && !affichageprimaire) {
                 afficheFondecran();
                 petitrond();
                 cercleOnOff();
@@ -116,6 +105,51 @@ void gestionEvenement(EvenementGfx evenement) {
                 carre5m();
                 carrerec();
                 carreclic();
+            }
+
+           
+
+
+            else if (affichageprimaire) {
+		    	rafraichisFenetre();
+		        afficheTableauCarres();
+
+		        // Affichage du code saisi au-dessus des touches
+		        char codeAffiche[5];
+		        snprintf(codeAffiche, 5, "%d%d%d%d", codeSaisi[0], codeSaisi[1], codeSaisi[2], codeSaisi[3]);
+
+		        if (estBloque) {
+		            // Calcul du temps restant de blocage
+		            int secondesRestantes = 60 - (time(NULL) - debutBlocage);
+		            if (secondesRestantes > 0) {
+		                char messageBlocage[50];
+		                snprintf(messageBlocage, 50, "Trop de tentatives. Attendre : %d s", secondesRestantes);
+
+		                couleurCourante(255, 0, 0); // Rouge
+		            	afficheChaine(messageBlocage, 24, 10, HAUTEUR_FENETRE - 150);
+		            	 } else {
+			                estBloque = false;
+			                tentativesIncorrectes = 0;
+			            }
+		      	}
+
+		        else {
+		            if (time(NULL) - tempsErreur < 3) {
+		                couleurCourante(255, 0, 0); // Rouge
+		                
+		            } else if (codeValide) {
+		                couleurCourante(0, 255, 0); // Vert
+		                
+		            } else {
+		                couleurCourante(255, 255, 255); // Blanc par défaut
+		            }
+
+
+                afficheChaine(codeAffiche, 35, (largeurFenetre() - (3 * 60 + 2 * 10)) / 1.79, hauteurFenetre() - (3 * 60 + 2 * 10));
+
+
+                rafraichisFenetre();
+
             }
 
             afficheDateHeure(); // Affiche la date et l'heure
@@ -144,53 +178,73 @@ void gestionEvenement(EvenementGfx evenement) {
             break;
 
         case BoutonSouris:
-            if (etatBoutonSouris() == GaucheAppuye) {
-                if (affichageprimaire) {
-                    bool clicSurChiffre = false;
 
-                    for (int i = 0; i < 9; i++) {
-                        if (abscisseSouris() >= carres[i].x && abscisseSouris() <= carres[i].x + carres[i].largeur &&
-                            ordonneeSouris() >= carres[i].y && ordonneeSouris() <= carres[i].y + carres[i].hauteur) {
-                            printf("Carré %d cliqué.\n", i + 1);
+            if (etatBoutonSouris() == GaucheAppuye){
 
-                            if (indexSaisie < 4) {
-                                codeSaisi[indexSaisie] = i + 1;
-                                indexSaisie++;
-                                clicSurChiffre = true;
-                            }
-                            break;
-                        }
-                        rafraichisFenetre();
-                    }
+                if (affichageprimaire && !estBloque) {
+	    			bool clicSurChiffre = false;
 
-                    if (abscisseSouris() >= carres[9].x && abscisseSouris() <= carres[9].x + carres[9].largeur &&
-                        ordonneeSouris() >= carres[9].y && ordonneeSouris() <= carres[9].y + carres[9].hauteur) {
-                        printf("Carré 0 cliqué.\n");
+				    for (int i = 0; i < 9; i++) {
+				        if (abscisseSouris() >= carres[i].x && abscisseSouris() <= carres[i].x + carres[i].largeur &&
+				            ordonneeSouris() >= carres[i].y && ordonneeSouris() <= carres[i].y + carres[i].hauteur) {
+				            printf("Carré %d cliqué.\n", i + 1);
 
-                        if (indexSaisie < 4) {
-                            codeSaisi[indexSaisie] = 0;
-                            indexSaisie++;
-                            clicSurChiffre = true;
-                        }
-                    }
+				        	carreauinverse = true;
 
-                    if (indexSaisie == 4) {
-                        if (codeSaisi[0] == PASS_1 && codeSaisi[1] == PASS_2 && codeSaisi[2] == PASS_3 && codeSaisi[3] == PASS_4) {
-                            printf("Bon code !\n");
-                            affichageprimaire = false;
-                            codeValide = true;
-                        } else {
-                            printf("Mauvais code ! Réessayez.\n");
-                            codeValide = false;
-                            tempsErreur = time(NULL);
-                            memset(codeSaisi, 0, sizeof(codeSaisi));
-                            indexSaisie = 0;
-                        }
-                    }
+				            if (indexSaisie < 4) {
+				                codeSaisi[indexSaisie] = i + 1;
+				                indexSaisie++;
+				                clicSurChiffre = true;
+				            }
+				            break;
+				        }
+				    }
 
-                    rafraichisFenetre();
-                }
-            
+				    if (abscisseSouris() >= carres[9].x && abscisseSouris() <= carres[9].x + carres[9].largeur &&
+				        ordonneeSouris() >= carres[9].y && ordonneeSouris() <= carres[9].y + carres[9].hauteur) {
+				        printf("Carré 0 cliqué.\n");
+
+				    	carreauinverse = true;
+
+				        if (indexSaisie < 4) {
+				            codeSaisi[indexSaisie] = 0;
+				            indexSaisie++;
+				            clicSurChiffre = true;
+				        }
+				    }
+
+				    if (indexSaisie == 4) {
+				        if (codeSaisi[0] == PASS_1 && codeSaisi[1] == PASS_2 && codeSaisi[2] == PASS_3 && codeSaisi[3] == PASS_4) {
+				            printf("Bon code !\n");
+				            
+				            codeValide = true;
+				            tentativesIncorrectes = 0;
+				            affichageprimaire = false;
+				          
+				            
+				        } else {
+				            printf("Mauvais code ! Réessayez.\n");
+				            codeValide = false;
+				            tempsErreur = time(NULL);
+				            tentativesIncorrectes++;
+				            if (tentativesIncorrectes >= 4) {
+				                estBloque = true;
+				                debutBlocage = time(NULL);
+				            }
+				            memset(codeSaisi, 0, sizeof(codeSaisi));
+				            indexSaisie = 0;
+				        }
+				    }
+
+				    rafraichisFenetre();
+				}
+
+				else if (estBloque && time(NULL) - debutBlocage >= 60) {
+				    estBloque = false;
+				    tentativesIncorrectes = 0;
+				}
+			
+				            
            
 
 
@@ -210,266 +264,247 @@ void gestionEvenement(EvenementGfx evenement) {
 
 
 
-		if(affichageInitial == true && affichageprimaire == false){
+				if(affichageInitial == true && affichageprimaire == false){
 
-			if (pow(abscisseSouris() - (largeurFenetre() * 0.9), 2) +
-				pow(ordonneeSouris() - (hauteurFenetre() * 0.85), 2) <=
-				pow(largeurFenetre() * 0.07, 2))
-			{
-				printf("Cercle ON/OFF cliqué.\n");
+					if (pow(abscisseSouris() - (largeurFenetre() * 0.9), 2) +
+						pow(ordonneeSouris() - (hauteurFenetre() * 0.85), 2) <=
+						pow(largeurFenetre() * 0.07, 2))
+					{
+						printf("Cercle ON/OFF cliqué.\n");
 
-				if (affichageInitial)
-				{
-					send_command(serial_port, 'E'); // Envoie 'E' si l'affichage initial est activé
-					affichageInitial = false;       // Désactive l'affichage initial
+						if (affichageInitial)
+						{
+							send_command(serial_port, 'E'); // Envoie 'E' si l'affichage initial est activé
+							affichageInitial = false;       // Désactive l'affichage initial
+						}
+						else
+						{
+							send_command(serial_port, 'e'); // Envoie 'e' si l'affichage initial est désactivé
+							affichageInitial = true;        // Active l'affichage initial
+						}
+
+						rafraichisFenetre();
+					}
+
+
 				}
-				else
-				{
-					send_command(serial_port, 'e'); // Envoie 'e' si l'affichage initial est désactivé
-					affichageInitial = true;        // Active l'affichage initial
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				else if (affichageInitial == false && affichageprimaire == false){
+
+					if (abscisseSouris() >= ((largeurFenetre()) / 5) * 3 && abscisseSouris() <= (largeurFenetre()) - (((largeurFenetre()) / 12) * 4) &&
+						ordonneeSouris() >= (hauteurFenetre() / 6) * 3 && ordonneeSouris() <= (hauteurFenetre()) - ((hauteurFenetre() / 10) * 4.5))
+					{
+						printf("Flèche droite cliquée.\n");
+						send_command(serial_port, 'D');
+						clicSurFlecheDroite = true; // Active l'état du clic sur la flèche droite
+						rafraichisFenetre();
+					}
+					else if (abscisseSouris() >= (largeurFenetre() - (largeurFenetre() - ((largeurFenetre() / 12) * 4))) &&
+						abscisseSouris() <= (largeurFenetre() - ((largeurFenetre() / 5) * 3)) &&
+						ordonneeSouris() >= ((hauteurFenetre() / 6) * 3) &&
+						ordonneeSouris() <= (hauteurFenetre() - ((hauteurFenetre() / 10) * 4.5)))
+					{
+						printf("Flèche gauche cliquée.\n");
+						send_command(serial_port, 'G');
+						clicSurFlecheGauche = true; // Active l'état du clic sur la flèche gauche
+						rafraichisFenetre();
+					}
+					else if (abscisseSouris() >= (largeurFenetre() / 5) * 2.4 && abscisseSouris() <= (largeurFenetre() / 5) * 2.6 &&
+						ordonneeSouris() >= (hauteurFenetre() / 2) + (largeurFenetre() / 12) &&
+						ordonneeSouris() <= (hauteurFenetre() / 2) + ((hauteurFenetre() / 10) * 2.7))
+					{
+						printf("Flèche haut cliquée.\n");
+						send_command(serial_port, 'H');
+						clicSurFlecheHaut = true; // Active l'état du clic sur la flèche haut
+						rafraichisFenetre();
+					}
+					else if (abscisseSouris() >= (largeurFenetre() / 5) * 2.4 && abscisseSouris() <= (largeurFenetre() / 5) * 2.6 &&
+						ordonneeSouris() >= (hauteurFenetre() / 2) - ((hauteurFenetre() / 10) * 2.7) &&
+						ordonneeSouris() <= (hauteurFenetre() / 2) - (largeurFenetre() / 12))
+					{
+						printf("Flèche bas cliquée.\n");
+						send_command(serial_port, 'B');
+						clicSurFlecheBas = true; // Active l'état du clic sur la flèche bas
+						rafraichisFenetre();
+					}
+					
+
+					else if (abscisseSouris() >= (largeurFenetre() * 0.825) &&
+						abscisseSouris() <= (largeurFenetre() * 0.825) + (largeurFenetre() * 0.15) &&
+						ordonneeSouris() <= hauteurFenetre() * 0.65 &&
+						ordonneeSouris() >= (hauteurFenetre() * 0.65) - (hauteurFenetre() * 0.08))
+					{
+						printf("Rectangle Sound ON/OFF cliqué.\n");
+						if (soundOn == true)
+						{
+							send_command(serial_port, 's');
+						}
+						else
+						{
+							send_command(serial_port, 'S');
+						}
+
+						if (soundOn == true)
+						{
+							soundOn = false;
+						}
+						else if (soundOn == false)
+						{
+							soundOn = true;
+						}
+
+						rafraichisFenetre();
+					}
+					else if (abscisseSouris() >= largeurFenetre() * 0.828 &&
+		                     abscisseSouris() <= largeurFenetre() * 0.878 &&
+		                     ordonneeSouris() >= hauteurFenetre() * 0.5 - hauteurFenetre() * 0.08 &&
+		                     ordonneeSouris() <= hauteurFenetre() * 0.5)
+		            {
+		                printf("50cm cliqué.\n");
+		                send_command(serial_port, 'X');
+		                distanceChoisie = 'X';
+		 
+		                bouton50cmClique = true;
+		                bouton1mClique = false;
+		                bouton5mClique = false;
+		                rafraichisFenetre();
+		            }
+		            else if (abscisseSouris() >= largeurFenetre() * 0.878 &&
+		                     abscisseSouris() <= largeurFenetre() * 0.928 &&
+		                     ordonneeSouris() >= hauteurFenetre() * 0.5 - hauteurFenetre() * 0.08 &&
+		                     ordonneeSouris() <= hauteurFenetre() * 0.5)
+		            {
+		                printf("1m cliqué.\n");
+		                send_command(serial_port, 'Y');
+		                distanceChoisie = 'Y';
+		 
+		                bouton50cmClique = false;
+		                bouton1mClique = true;
+		                bouton5mClique = false;
+		                rafraichisFenetre();
+		            }
+		            else if (abscisseSouris() >= largeurFenetre() * 0.928 &&
+		                     abscisseSouris() <= largeurFenetre() * 0.978 &&
+		                     ordonneeSouris() >= hauteurFenetre() * 0.5 - hauteurFenetre() * 0.08 &&
+		                     ordonneeSouris() <= hauteurFenetre() * 0.5)
+		            {
+		                printf("5m cliqué.\n");
+		                send_command(serial_port, 'Z');
+		                distanceChoisie = 'Z';
+		 
+		                bouton50cmClique = false;
+		                bouton1mClique = false;
+		                bouton5mClique = true;
+		                rafraichisFenetre();
+		            }
+		 
+					else if (abscisseSouris() >= largeurFenetre() * 0.825 &&
+						abscisseSouris() <= largeurFenetre() * 0.975 &&
+						ordonneeSouris() >= hauteurFenetre() * 0.22 &&
+						ordonneeSouris() <= hauteurFenetre() * 0.3)
+					{
+						printf("Bouton REC cliqué.\n");
+						recOn = !recOn; // Toggle l'état d'enregistrement
+
+						if (recOn)
+						{
+							// Démarrer l'enregistrement
+							printf("Démarrage de l'enregistrement...\n");
+							// Obtenir la date et l'heure actuelles
+							char datetime[20];
+							getFormattedDateTime(datetime, sizeof(datetime));
+
+							// Construire le nom du fichier
+							char command[256];
+							snprintf(command, sizeof(command), "mkdir -p videos && ffmpeg -f v4l2 -r 25 -s 640x480 -i /dev/video0 -c:v libx264 -pix_fmt yuv420p -preset ultrafast videos/video_%s.mp4 &", datetime);
+
+							// Exécuter la commande
+							system(command);
+						}
+						else
+						{
+							// Arrêter l'enregistrement
+							printf("Arrêt de l'enregistrement...\n");
+							system("pkill ffmpeg");
+						}
+
+						rafraichisFenetre();
+					}
+					else if (abscisseSouris() >= largeurFenetre() * 0.825 && abscisseSouris() <= largeurFenetre() * 0.975 &&
+						ordonneeSouris() >= hauteurFenetre() * 0.07 && ordonneeSouris() <= hauteurFenetre() * 0.15)
+					{
+						printf("Bouton CLIC cliqué.\n");
+
+						// Obtenir la date et l'heure actuelles
+						char datetime[20];
+						getFormattedDateTime(datetime, sizeof(datetime));
+
+						// Construire le nom du fichier
+						char command[256];
+						snprintf(command, sizeof(command), "mkdir -p photos && ffmpeg -f v4l2 -video_size 640x480 -i /dev/video0 -frames:v 1 photos/photo_%s.png", datetime);
+
+						captureEcran = true;
+
+						// Prendre une capture d'écran
+						system(command);
+
+						rafraichisFenetre();
+					}
+
+					else if (pow(abscisseSouris() - (largeurFenetre() * 0.9), 2) +
+						pow(ordonneeSouris() - (hauteurFenetre() * 0.85), 2) <=
+						pow(largeurFenetre() * 0.07, 2))
+					{
+						printf("Cercle ON/OFF cliqué.\n");
+
+						if (affichageInitial)
+						{
+							send_command(serial_port, 'E'); // Envoie 'E' si l'affichage initial est activé
+							affichageInitial = false;       // Désactive l'affichage initial
+						}
+						else
+						{
+							send_command(serial_port, 'e'); // Envoie 'e' si l'affichage initial est désactivé
+							affichageInitial = true;        // Active l'affichage initial
+						}
+
+						rafraichisFenetre();
+
+					}
 				}
+			}
+
+		
+
+			else if (etatBoutonSouris() == GaucheRelache){
+
+				clicSurFlecheDroite = false; // Désactive l'état du clic sur la flèche droite lorsque le clic est relâché
+				clicSurFlecheGauche = false;
+				clicSurFlecheHaut = false;
+				clicSurFlecheBas = false;
+				captureEcran = false;
+				carreauinverse = false;
+
 
 				rafraichisFenetre();
 			}
-
-
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		else if (affichageInitial == false && affichageprimaire == false){
-
-			if (abscisseSouris() >= ((largeurFenetre()) / 5) * 3 && abscisseSouris() <= (largeurFenetre()) - (((largeurFenetre()) / 12) * 4) &&
-				ordonneeSouris() >= (hauteurFenetre() / 6) * 3 && ordonneeSouris() <= (hauteurFenetre()) - ((hauteurFenetre() / 10) * 4.5))
-			{
-				printf("Flèche droite cliquée.\n");
-				send_command(serial_port, 'D');
-				clicSurFlecheDroite = true; // Active l'état du clic sur la flèche droite
-				rafraichisFenetre();
-			}
-			else if (abscisseSouris() >= (largeurFenetre() - (largeurFenetre() - ((largeurFenetre() / 12) * 4))) &&
-				abscisseSouris() <= (largeurFenetre() - ((largeurFenetre() / 5) * 3)) &&
-				ordonneeSouris() >= ((hauteurFenetre() / 6) * 3) &&
-				ordonneeSouris() <= (hauteurFenetre() - ((hauteurFenetre() / 10) * 4.5)))
-			{
-				printf("Flèche gauche cliquée.\n");
-				send_command(serial_port, 'G');
-				clicSurFlecheGauche = true; // Active l'état du clic sur la flèche gauche
-				rafraichisFenetre();
-			}
-			else if (abscisseSouris() >= (largeurFenetre() / 5) * 2.4 && abscisseSouris() <= (largeurFenetre() / 5) * 2.6 &&
-				ordonneeSouris() >= (hauteurFenetre() / 2) + (largeurFenetre() / 12) &&
-				ordonneeSouris() <= (hauteurFenetre() / 2) + ((hauteurFenetre() / 10) * 2.7))
-			{
-				printf("Flèche haut cliquée.\n");
-				send_command(serial_port, 'H');
-				clicSurFlecheHaut = true; // Active l'état du clic sur la flèche haut
-				rafraichisFenetre();
-			}
-			else if (abscisseSouris() >= (largeurFenetre() / 5) * 2.4 && abscisseSouris() <= (largeurFenetre() / 5) * 2.6 &&
-				ordonneeSouris() >= (hauteurFenetre() / 2) - ((hauteurFenetre() / 10) * 2.7) &&
-				ordonneeSouris() <= (hauteurFenetre() / 2) - (largeurFenetre() / 12))
-			{
-				printf("Flèche bas cliquée.\n");
-				send_command(serial_port, 'B');
-				clicSurFlecheBas = true; // Active l'état du clic sur la flèche bas
-				rafraichisFenetre();
-			}
-			
-
-			else if (abscisseSouris() >= (largeurFenetre() * 0.825) &&
-				abscisseSouris() <= (largeurFenetre() * 0.825) + (largeurFenetre() * 0.15) &&
-				ordonneeSouris() <= hauteurFenetre() * 0.65 &&
-				ordonneeSouris() >= (hauteurFenetre() * 0.65) - (hauteurFenetre() * 0.08))
-			{
-				printf("Rectangle Sound ON/OFF cliqué.\n");
-				if (soundOn == true)
-				{
-					send_command(serial_port, 's');
-				}
-				else
-				{
-					send_command(serial_port, 'S');
-				}
-
-				if (soundOn == true)
-				{
-					soundOn = false;
-				}
-				else if (soundOn == false)
-				{
-					soundOn = true;
-				}
-
-				rafraichisFenetre();
-			}
-			else if (abscisseSouris() >= largeurFenetre() * 0.828 &&
-                     abscisseSouris() <= largeurFenetre() * 0.878 &&
-                     ordonneeSouris() >= hauteurFenetre() * 0.5 - hauteurFenetre() * 0.08 &&
-                     ordonneeSouris() <= hauteurFenetre() * 0.5)
-            {
-                printf("50cm cliqué.\n");
-                send_command(serial_port, 'X');
-                distanceChoisie = 'X';
- 
-                bouton50cmClique = true;
-                bouton1mClique = false;
-                bouton5mClique = false;
-                rafraichisFenetre();
-            }
-            else if (abscisseSouris() >= largeurFenetre() * 0.878 &&
-                     abscisseSouris() <= largeurFenetre() * 0.928 &&
-                     ordonneeSouris() >= hauteurFenetre() * 0.5 - hauteurFenetre() * 0.08 &&
-                     ordonneeSouris() <= hauteurFenetre() * 0.5)
-            {
-                printf("1m cliqué.\n");
-                send_command(serial_port, 'Y');
-                distanceChoisie = 'Y';
- 
-                bouton50cmClique = false;
-                bouton1mClique = true;
-                bouton5mClique = false;
-                rafraichisFenetre();
-            }
-            else if (abscisseSouris() >= largeurFenetre() * 0.928 &&
-                     abscisseSouris() <= largeurFenetre() * 0.978 &&
-                     ordonneeSouris() >= hauteurFenetre() * 0.5 - hauteurFenetre() * 0.08 &&
-                     ordonneeSouris() <= hauteurFenetre() * 0.5)
-            {
-                printf("5m cliqué.\n");
-                send_command(serial_port, 'Z');
-                distanceChoisie = 'Z';
- 
-                bouton50cmClique = false;
-                bouton1mClique = false;
-                bouton5mClique = true;
-                rafraichisFenetre();
-            }
- 
-			else if (abscisseSouris() >= largeurFenetre() * 0.825 &&
-				abscisseSouris() <= largeurFenetre() * 0.975 &&
-				ordonneeSouris() >= hauteurFenetre() * 0.22 &&
-				ordonneeSouris() <= hauteurFenetre() * 0.3)
-			{
-				printf("Bouton REC cliqué.\n");
-				recOn = !recOn; // Toggle l'état d'enregistrement
-
-				if (recOn)
-				{
-					// Démarrer l'enregistrement
-					printf("Démarrage de l'enregistrement...\n");
-					// Obtenir la date et l'heure actuelles
-					char datetime[20];
-					getFormattedDateTime(datetime, sizeof(datetime));
-
-					// Construire le nom du fichier
-					char command[256];
-					snprintf(command, sizeof(command), "mkdir -p videos && ffmpeg -f v4l2 -r 25 -s 640x480 -i /dev/video0 -c:v libx264 -pix_fmt yuv420p -preset ultrafast videos/video_%s.mp4 &", datetime);
-
-					// Exécuter la commande
-					system(command);
-				}
-				else
-				{
-					// Arrêter l'enregistrement
-					printf("Arrêt de l'enregistrement...\n");
-					system("pkill ffmpeg");
-				}
-
-				rafraichisFenetre();
-			}
-			else if (abscisseSouris() >= largeurFenetre() * 0.825 && abscisseSouris() <= largeurFenetre() * 0.975 &&
-				ordonneeSouris() >= hauteurFenetre() * 0.07 && ordonneeSouris() <= hauteurFenetre() * 0.15)
-			{
-				printf("Bouton CLIC cliqué.\n");
-
-				// Obtenir la date et l'heure actuelles
-				char datetime[20];
-				getFormattedDateTime(datetime, sizeof(datetime));
-
-				// Construire le nom du fichier
-				char command[256];
-				snprintf(command, sizeof(command), "mkdir -p photos && ffmpeg -f v4l2 -video_size 640x480 -i /dev/video0 -frames:v 1 photos/photo_%s.png", datetime);
-
-				captureEcran = true;
-
-				// Prendre une capture d'écran
-				system(command);
-
-				rafraichisFenetre();
-			}
-
-			else if (pow(abscisseSouris() - (largeurFenetre() * 0.9), 2) +
-				pow(ordonneeSouris() - (hauteurFenetre() * 0.85), 2) <=
-				pow(largeurFenetre() * 0.07, 2))
-			{
-				printf("Cercle ON/OFF cliqué.\n");
-
-				if (affichageInitial)
-				{
-					send_command(serial_port, 'E'); // Envoie 'E' si l'affichage initial est activé
-					affichageInitial = false;       // Désactive l'affichage initial
-				}
-				else
-				{
-					send_command(serial_port, 'e'); // Envoie 'e' si l'affichage initial est désactivé
-					affichageInitial = true;        // Active l'affichage initial
-				}
-
-				rafraichisFenetre();
-
-			}
-		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	}
-
-		else if (etatBoutonSouris() == GaucheRelache)
-		{
-			clicSurFlecheDroite = false; // Désactive l'état du clic sur la flèche droite lorsque le clic est relâché
-			clicSurFlecheGauche = false;
-			clicSurFlecheHaut = false;
-			clicSurFlecheBas = false;
-			captureEcran = false;
-
-			rafraichisFenetre();
-		}
+		}	
 		break;
 
 		case Inactivite:

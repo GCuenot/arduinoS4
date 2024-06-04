@@ -25,6 +25,7 @@ bool clicSurFlecheGauche = false;
 bool clicSurFlecheHaut = false;
 bool clicSurFlecheBas = false;
 bool captureEcran = false;
+bool carreauinverse= false;
 
 Carre carres[10];
 
@@ -59,11 +60,29 @@ void afficheTableauCarres(){
             carres[chiffre - 1].hauteur = hauteurCarre;
 
             // Dessiner le carré
-            couleurCourante(255, 255, 255);
+
+            if(carreauinverse){
+
+                couleurCourante(0, 0, 0);
+
+            }
+            else{
+                couleurCourante(255,255,255);
+            }
+
+            
             rectangle(x, y, x + largeurCarre, y + hauteurCarre);
 
             // Afficher le chiffre dans le carré
-            couleurCourante(0, 0, 0);
+           if(carreauinverse){
+
+                couleurCourante(255, 255, 255);
+
+            }
+            else{
+                couleurCourante(0,0,0);
+            }
+
             char texte[2];
             snprintf(texte, 2, "%d", chiffre++);
             float texteX = x + (largeurCarre - tailleChaine(texte, 20.0)) / 2;
@@ -83,11 +102,25 @@ void afficheTableauCarres(){
     carres[9].hauteur = hauteurCarre;
 
     // Dessiner le carré supplémentaire
-    couleurCourante(255, 255, 255);
+    if(carreauinverse){
+
+                couleurCourante(0, 0, 0);
+
+            }
+            else{
+                couleurCourante(255,255,255);
+            }
     rectangle(carreSupX, carreSupY, carreSupX + largeurCarre, carreSupY + hauteurCarre);
 
     // Afficher le chiffre 0 dans le carré supplémentaire
-    couleurCourante(0, 0, 0);
+    if(carreauinverse){
+
+                couleurCourante(255, 255, 255);
+
+            }
+            else{
+                couleurCourante(0,0,0);
+            }
     char texte[2] = "0";
     float texteX = carreSupX + (largeurCarre - tailleChaine(texte, 20.0)) / 2;
     float texteY = carreSupY + (hauteurCarre - 20.0) / 2;

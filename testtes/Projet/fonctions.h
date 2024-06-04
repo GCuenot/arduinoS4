@@ -14,6 +14,7 @@ extern bool clicSurFlecheGauche;
 extern bool clicSurFlecheHaut;
 extern bool clicSurFlecheBas;
 extern bool captureEcran;
+extern bool carreauinverse;
 
 
 
