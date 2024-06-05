@@ -97,7 +97,7 @@ void gestionEvenement(EvenementGfx evenement) {
                 cercleOnOff2();
                 rafraichisFenetre();
                 acceuil();
-               
+			    texte1();
             } 
             else if (!affichageInitial && !affichageprimaire) {
                 afficheFondecran();
@@ -113,6 +113,7 @@ void gestionEvenement(EvenementGfx evenement) {
                 carre5m();
                 carrerec();
                 carreclic();
+                texte2();
             }
 
            

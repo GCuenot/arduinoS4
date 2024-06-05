@@ -656,11 +656,30 @@ void getFormattedDateTime(char *buffer, size_t bufferSize) {
 }
 
 
+void afficherTexte(const char *texte, float x, float y) {
+    couleurCourante(255, 255, 255);
+    float posX = x;
+    float posY = y;
+    afficheChaine(texte, 20.0, posX, posY);
 
 
+}
 
+void texte1(){
 
+    afficherTexte("- Tapez ' m ' ou ' M ' pour modifier le mot de passe.", 40, hauteurFenetre() - 60);
+    afficherTexte("- Tapez ' Q ' ou ' q ' pour quitter l'interface.", 20, hauteurFenetre() - 90);
+                      
 
+}
+
+void texte2(){
+
+    afficherTexte("- Utilisez les fleches du clavier pour le mouvement de la camera", 60, hauteurFenetre() - 30);
+    afficherTexte("- Tapez ' m ' ou ' M ' pour modifier le mot de passe.",40, hauteurFenetre() - 60);
+    afficherTexte("- Tapez ' Q ' ou ' q ' pour quitter l'interface.", 20, hauteurFenetre() - 90);
+
+}
 
 
 

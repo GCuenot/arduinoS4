@@ -45,7 +45,9 @@ void petitrond();
 void acceuil();
 void afficheDateHeure();
 void afficheTableauCarres();
-
+void afficherTexte(const char *texte, float x, float y);
+void texte1();
+void texte2();
 
 
 
