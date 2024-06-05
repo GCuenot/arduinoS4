@@ -20,10 +20,12 @@
 #define LARGEUR_FENETRE 1200
 #define HAUTEUR_FENETRE 700
 
-#define PASS_1 9
-#define PASS_2 9
-#define PASS_3 1
-#define PASS_4 2
+
+char touche;
+
+
+
+
 
 static char distanceChoisie = 'X';
 bool affichageInitial = true;
@@ -40,6 +42,7 @@ bool estBloque = false;
 
 
 
+void modifierMotDePasse();
 
 
 struct sp_port *open_serial_port(const char *port_name);
@@ -48,18 +51,18 @@ void send_command(struct sp_port *port, char command);
 void gestionEvenement(EvenementGfx evenement);
 void writeToLogFile(const char *message);
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     srand(time(NULL));
+
+    //verifierMotDePasse();
     const char *port_name = "/dev/ttyACM0";
     serial_port = open_serial_port(port_name);
-    if (serial_port == NULL)
-    {
+    if (serial_port == NULL) {
         return 1;
     }
+
     pthread_t serial_thread;
-    if (pthread_create(&serial_thread, NULL, read_serial_port, (void *)serial_port))
-    {
+    if (pthread_create(&serial_thread, NULL, read_serial_port, (void *)serial_port)) {
         fprintf(stderr, "Erreur: Impossible de créer le thread\n");
         return 1;
     }
@@ -76,8 +79,10 @@ int main(int argc, char **argv)
     return 0;
 }
 
+
 void gestionEvenement(EvenementGfx evenement) {
-    static int codeSaisi[4] = {0}; // Tableau pour stocker les chiffres saisis
+   static char codeSaisi[5] = {'\0'}; // Tableau pour stocker les chiffres saisis comme une chaîne de caractères
+
     static int indexSaisie = 0;    // Indice pour suivre la saisie du code
 
     switch (evenement) {
@@ -85,11 +90,14 @@ void gestionEvenement(EvenementGfx evenement) {
 		    
 
             if (affichageInitial && !affichageprimaire) {
+            	
+
                 afficheFondecran();
                 petitrond();
                 cercleOnOff2();
                 rafraichisFenetre();
                 acceuil();
+               
             } 
             else if (!affichageInitial && !affichageprimaire) {
                 afficheFondecran();
@@ -113,6 +121,7 @@ void gestionEvenement(EvenementGfx evenement) {
             else if (affichageprimaire) {
 		    	rafraichisFenetre();
 		        afficheTableauCarres();
+		        
 
 		        // Affichage du code saisi au-dessus des touches
 		        char codeAffiche[5];
@@ -157,6 +166,9 @@ void gestionEvenement(EvenementGfx evenement) {
             break;
 
         case ClavierSpecial:
+
+        	
+
             if (!affichageInitial) {
                 if (toucheClavier() == ToucheFlecheHaut) {
                     printf("Touche flèche haut pressée.\n");
@@ -175,74 +187,103 @@ void gestionEvenement(EvenementGfx evenement) {
             break;
 
         case Clavier:
-            break;
+    if (caractereClavier() == 'q' || caractereClavier() == 'Q') {
+        printf("Touche q pressée. Fermeture de l'application.\n");
+        exit(0); // Ferme l'application
+    } if(affichageprimaire == false){
+
+    	if (caractereClavier() == 'M' || caractereClavier() == 'm') {
+	        printf("Touche m pressée. Modifier le mot de passe.\n");
+	        modifierMotDePasse(); // Appel de la fonction pour modifier le mot de passe
+   		}
+
+    } 
+    break;
+
 
         case BoutonSouris:
 
             if (etatBoutonSouris() == GaucheAppuye){
 
-                if (affichageprimaire && !estBloque) {
-	    			bool clicSurChiffre = false;
+               if (affichageprimaire && !estBloque) {
+    bool clicSurChiffre = false;
 
-				    for (int i = 0; i < 9; i++) {
-				        if (abscisseSouris() >= carres[i].x && abscisseSouris() <= carres[i].x + carres[i].largeur &&
-				            ordonneeSouris() >= carres[i].y && ordonneeSouris() <= carres[i].y + carres[i].hauteur) {
-				            printf("Carré %d cliqué.\n", i + 1);
+    for (int i = 0; i < 9; i++) {
+        if (abscisseSouris() >= carres[i].x && abscisseSouris() <= carres[i].x + carres[i].largeur &&
+            ordonneeSouris() >= carres[i].y && ordonneeSouris() <= carres[i].y + carres[i].hauteur) {
+            printf("Carré %d cliqué.\n", i + 1);
+           
 
-				        	carreauinverse = true;
+            if (indexSaisie < 4) {
+                codeSaisi[indexSaisie] = i + 1;
+                indexSaisie++;
+                clicSurChiffre = true;
+            }
+            break;
+        }
+    }
 
-				            if (indexSaisie < 4) {
-				                codeSaisi[indexSaisie] = i + 1;
-				                indexSaisie++;
-				                clicSurChiffre = true;
-				            }
-				            break;
-				        }
-				    }
+    if (abscisseSouris() >= carres[9].x && abscisseSouris() <= carres[9].x + carres[9].largeur &&
+        ordonneeSouris() >= carres[9].y && ordonneeSouris() <= carres[9].y + carres[9].hauteur) {
+        printf("Carré 0 cliqué.\n");
 
-				    if (abscisseSouris() >= carres[9].x && abscisseSouris() <= carres[9].x + carres[9].largeur &&
-				        ordonneeSouris() >= carres[9].y && ordonneeSouris() <= carres[9].y + carres[9].hauteur) {
-				        printf("Carré 0 cliqué.\n");
+        if (indexSaisie < 4) {
+            codeSaisi[indexSaisie] = 0;
+            indexSaisie++;
+            clicSurChiffre = true;
+        }
+    }
 
-				    	carreauinverse = true;
+    if (indexSaisie == 4) {
+        // Récupérer le mot de passe du fichier
+        FILE *fichierMotDePasse = fopen("mot_de_passe.txt", "r");
+        if (fichierMotDePasse == NULL) {
+            printf("Erreur: Le fichier mot_de_passe.txt n'existe pas.\n");
+            exit(1);
+        }
 
-				        if (indexSaisie < 4) {
-				            codeSaisi[indexSaisie] = 0;
-				            indexSaisie++;
-				            clicSurChiffre = true;
-				        }
-				    }
+        // Lire chaque chiffre du mot de passe du fichier et vérifier
+        bool codeValide = true;
+        for (int i = 0; i < 4; i++) {
+            char chiffreFichier;
+            if (fscanf(fichierMotDePasse, " %c", &chiffreFichier) != 1) {
+                printf("Erreur lors de la lecture du mot de passe.\n");
+                fclose(fichierMotDePasse);
+                exit(1);
+            }
+            if (codeSaisi[i] != (chiffreFichier - '0')) {
+                codeValide = false;
+                break;
+            }
+        }
 
-				    if (indexSaisie == 4) {
-				        if (codeSaisi[0] == PASS_1 && codeSaisi[1] == PASS_2 && codeSaisi[2] == PASS_3 && codeSaisi[3] == PASS_4) {
-				            printf("Bon code !\n");
-				            
-				            codeValide = true;
-				            tentativesIncorrectes = 0;
-				            affichageprimaire = false;
-				          
-				            
-				        } else {
-				            printf("Mauvais code ! Réessayez.\n");
-				            codeValide = false;
-				            tempsErreur = time(NULL);
-				            tentativesIncorrectes++;
-				            if (tentativesIncorrectes >= 4) {
-				                estBloque = true;
-				                debutBlocage = time(NULL);
-				            }
-				            memset(codeSaisi, 0, sizeof(codeSaisi));
-				            indexSaisie = 0;
-				        }
-				    }
+        fclose(fichierMotDePasse);
 
-				    rafraichisFenetre();
-				}
+        if (codeValide) {
+            printf("Bon code !\n");
+            tentativesIncorrectes = 0;
+            affichageprimaire = false;
+        } else {
+            printf("Mauvais code ! Réessayez.\n");
+            tempsErreur = time(NULL);
+            tentativesIncorrectes++;
+            if (tentativesIncorrectes >= 4) {
+                estBloque = true;
+                debutBlocage = time(NULL);
+            }
+        }
+        memset(codeSaisi, 0, sizeof(codeSaisi));
+        indexSaisie = 0;
+    }
 
-				else if (estBloque && time(NULL) - debutBlocage >= 60) {
-				    estBloque = false;
-				    tentativesIncorrectes = 0;
-				}
+    rafraichisFenetre();
+}
+
+else if (estBloque && time(NULL) - debutBlocage >= 60) {
+    estBloque = false;
+    tentativesIncorrectes = 0;
+}
+
 			
 				            
            
@@ -266,7 +307,9 @@ void gestionEvenement(EvenementGfx evenement) {
 
 				if(affichageInitial == true && affichageprimaire == false){
 
-					if (pow(abscisseSouris() - (largeurFenetre() * 0.9), 2) +
+					
+
+					 if (pow(abscisseSouris() - (largeurFenetre() * 0.9), 2) +
 						pow(ordonneeSouris() - (hauteurFenetre() * 0.85), 2) <=
 						pow(largeurFenetre() * 0.07, 2))
 					{
@@ -285,6 +328,16 @@ void gestionEvenement(EvenementGfx evenement) {
 
 						rafraichisFenetre();
 					}
+
+					else if (abscisseSouris() >= 0 && abscisseSouris() <= 100 &&
+                ordonneeSouris() >= hauteurFenetre() - 50 && ordonneeSouris() <= hauteurFenetre())
+            {
+                // Action à effectuer lorsque le bouton est cliqué
+                printf("Bouton en haut à gauche cliqué.\n");
+                modifierMotDePasse(); // Appeler la fonction pour modifier le mot de passe
+            }
+        
+        break;
 
 
 				}
@@ -499,7 +552,7 @@ void gestionEvenement(EvenementGfx evenement) {
 				clicSurFlecheHaut = false;
 				clicSurFlecheBas = false;
 				captureEcran = false;
-				carreauinverse = false;
+			
 
 
 				rafraichisFenetre();
@@ -605,4 +658,31 @@ void writeToLogFile(const char *message) {
         fprintf(file, "[%s] %s (distance choisie : 5m)\n", datetime, message);
     }
     fclose(file);
+}
+
+
+
+
+void modifierMotDePasse() {
+    char nouveauCode[5];
+
+    // Demander à l'utilisateur de saisir le nouveau mot de passe
+    printf("Veuillez saisir le nouveau mot de passe (4 chiffres) : ");
+    scanf("%4s", nouveauCode);
+
+    // Ouvrir le fichier en mode écriture
+    FILE *fichierMotDePasse = fopen("mot_de_passe.txt", "w");
+    if (fichierMotDePasse == NULL) {
+        perror("Erreur lors de l'ouverture du fichier");
+        exit(EXIT_FAILURE);
+    }
+
+    // Écrire le nouveau mot de passe dans le fichier
+    fprintf(fichierMotDePasse, "%s", nouveauCode);
+
+    // Fermer le fichier
+    fclose(fichierMotDePasse);
+
+    // Informer l'utilisateur que le mot de passe a été modifié avec succès
+    printf("Mot de passe modifié avec succès!\n");
 }

@@ -25,7 +25,7 @@ bool clicSurFlecheGauche = false;
 bool clicSurFlecheHaut = false;
 bool clicSurFlecheBas = false;
 bool captureEcran = false;
-bool carreauinverse= false;
+
 
 Carre carres[10];
 
@@ -61,27 +61,15 @@ void afficheTableauCarres(){
 
             // Dessiner le carré
 
-            if(carreauinverse){
-
-                couleurCourante(0, 0, 0);
-
-            }
-            else{
-                couleurCourante(255,255,255);
-            }
-
+            couleurCourante(255,255,255);
+            
             
             rectangle(x, y, x + largeurCarre, y + hauteurCarre);
 
             // Afficher le chiffre dans le carré
-           if(carreauinverse){
-
-                couleurCourante(255, 255, 255);
-
-            }
-            else{
-                couleurCourante(0,0,0);
-            }
+           
+            couleurCourante(0,0,0);
+            
 
             char texte[2];
             snprintf(texte, 2, "%d", chiffre++);
@@ -101,26 +89,14 @@ void afficheTableauCarres(){
     carres[9].largeur = largeurCarre;
     carres[9].hauteur = hauteurCarre;
 
-    // Dessiner le carré supplémentaire
-    if(carreauinverse){
-
-                couleurCourante(0, 0, 0);
-
-            }
-            else{
-                couleurCourante(255,255,255);
-            }
+    
+    couleurCourante(255,255,255);
+            
     rectangle(carreSupX, carreSupY, carreSupX + largeurCarre, carreSupY + hauteurCarre);
 
-    // Afficher le chiffre 0 dans le carré supplémentaire
-    if(carreauinverse){
-
-                couleurCourante(255, 255, 255);
-
-            }
-            else{
-                couleurCourante(0,0,0);
-            }
+    
+    couleurCourante(0,0,0);
+            
     char texte[2] = "0";
     float texteX = carreSupX + (largeurCarre - tailleChaine(texte, 20.0)) / 2;
     float texteY = carreSupY + (hauteurCarre - 20.0) / 2;
@@ -678,3 +654,15 @@ void getFormattedDateTime(char *buffer, size_t bufferSize) {
 
     strftime(buffer, bufferSize, "%Y-%m-%d_%H:%M:%S", timeinfo);
 }
+
+
+
+
+
+
+
+
+
+
+
+
