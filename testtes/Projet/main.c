@@ -129,6 +129,7 @@ void gestionEvenement(EvenementGfx evenement) {
 		        snprintf(codeAffiche, 5, "%d%d%d%d", codeSaisi[0], codeSaisi[1], codeSaisi[2], codeSaisi[3]);
 
 		        if (estBloque) {
+		        	
 		            // Calcul du temps restant de blocage
 		            int secondesRestantes = 60 - (time(NULL) - debutBlocage);
 		            if (secondesRestantes > 0) {

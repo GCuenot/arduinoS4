@@ -666,18 +666,21 @@ void afficherTexte(const char *texte, float x, float y) {
 }
 
 void texte1(){
+    epaisseurDeTrait(1);
 
-    afficherTexte("- Tapez ' m ' ou ' M ' pour modifier le mot de passe.", 40, hauteurFenetre() - 60);
-    afficherTexte("- Tapez ' Q ' ou ' q ' pour quitter l'interface.", 20, hauteurFenetre() - 90);
+
+    afficherTexte("- Type 'm' or 'M' to change the password.", 40, hauteurFenetre() - 60);
+    afficherTexte("- Type 'Q' or 'q' to exit the interface.", 20, hauteurFenetre() - 90);
                       
 
 }
 
 void texte2(){
+    epaisseurDeTrait(1);
 
-    afficherTexte("- Utilisez les fleches du clavier pour le mouvement de la camera", 60, hauteurFenetre() - 30);
-    afficherTexte("- Tapez ' m ' ou ' M ' pour modifier le mot de passe.",40, hauteurFenetre() - 60);
-    afficherTexte("- Tapez ' Q ' ou ' q ' pour quitter l'interface.", 20, hauteurFenetre() - 90);
+    afficherTexte("- You can use the arrow keys for camera movement.", 60, hauteurFenetre() - 30);
+    afficherTexte("- Type 'm' or 'M' to change the password.",40, hauteurFenetre() - 60);
+    afficherTexte("- Type 'Q' or 'q' to exit the interface.", 20, hauteurFenetre() - 90);
 
 }
 
