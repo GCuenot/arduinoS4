@@ -107,7 +107,7 @@ void afficheTableauCarres(){
 
 void afficheFondecran(){
     // Rectangle de fond
-    couleurCourante(50, 50, 50);
+    couleurCourante(40,40,40);
     rectangle(0, 0, largeurFenetre(), hauteurFenetre());
 
     // Définir la couleur des triangles et des lignes

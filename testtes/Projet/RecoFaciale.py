@@ -1,4 +1,3 @@
-[16:08] Emrys DEROUICHE
 import cv2 
 
 import face_recognition 
