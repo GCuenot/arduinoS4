@@ -43,13 +43,13 @@ bool estBloque = false;
 
 
 void modifierMotDePasse();
-
-
 struct sp_port *open_serial_port(const char *port_name);
 void *read_serial_port(void *arg);
 void send_command(struct sp_port *port, char command);
 void gestionEvenement(EvenementGfx evenement);
 void writeToLogFile(const char *message);
+
+
 
 int main(int argc, char **argv) {
     srand(time(NULL));

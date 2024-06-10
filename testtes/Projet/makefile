@@ -1,17 +1,13 @@
-main: main.o operationsImages.o libisentlib.a fonctions.o moteur.o
-	gcc -Wall -g main.o operationsImages.o moteur.o fonctions.o -o main libisentlib.a -lm -lglut -lGL -lX11 -lserialport
+main: main.o libisentlib.a fonctions.o
+	gcc -Wall -g main.o fonctions.o -o main libisentlib.a -lm -lglut -lGL -lX11 -lserialport
 
-fonctions.o: operationsImages.o fonctions.c fonctions.h libisentlib.a
+fonctions.o: fonctions.c fonctions.h libisentlib.a
 	gcc -Wall -g -c fonctions.c
 
-moteur.o: moteur.c moteur.h 
-	gcc -Wall -g -c moteur.c
 
-operationsImages.o: operationsImages.c operationsImages.h
-	gcc -Wall -c operationsImages.c
 
-libisentlib.a: BmpLib.o ErreurLib.o ESLib.o GfxLib.o OutilsLib.o SocketLib.o ThreadLib.o TortueLib.o VectorLib.o WavLib.o
-	ar r libisentlib.a BmpLib.o ErreurLib.o ESLib.o GfxLib.o OutilsLib.o SocketLib.o ThreadLib.o TortueLib.o VectorLib.o WavLib.o
+libisentlib.a: BmpLib.o ErreurLib.o ESLib.o GfxLib.o OutilsLib.o SocketLib.o ThreadLib.o VectorLib.o WavLib.o
+	ar r libisentlib.a BmpLib.o ErreurLib.o ESLib.o GfxLib.o OutilsLib.o SocketLib.o ThreadLib.o VectorLib.o WavLib.o
 	ranlib libisentlib.a
 
 BmpLib.o: BmpLib.c BmpLib.h OutilsLib.h
@@ -38,8 +34,6 @@ SocketLib.o: SocketLib.c SocketLib.h
 ThreadLib.o: ThreadLib.c ThreadLib.h
 	gcc -Wall -O2 -c ThreadLib.c
 
-TortueLib.o: TortueLib.c TortueLib.h GfxLib.h
-	gcc -Wall -O2 -c TortueLib.c
 
 # Source specifique CPU x86/x86-64 fourni uniquement pour information
 #VectorLib.o: VectorLib.c VectorLib.h
@@ -59,4 +53,4 @@ clean:
 	rm -f *~ *.o
 
 deepclean: clean
-	rm -f main exempleTortue libisentlib.a
+	rm -f main libisentlib.a

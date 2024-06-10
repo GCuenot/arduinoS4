@@ -1,14 +1,10 @@
 #ifndef FONCTIONS_H
 #define FONCTIONS_H
 
-
-
 extern bool soundOn;
-
 extern bool bouton50cmClique;
 extern bool bouton1mClique;
 extern bool bouton5mClique;
-
 extern bool clicSurFlecheDroite;
 extern bool clicSurFlecheGauche;
 extern bool clicSurFlecheHaut;
@@ -16,14 +12,11 @@ extern bool clicSurFlecheBas;
 extern bool captureEcran;
 
 
-
-
 typedef struct {
     float x, y, largeur, hauteur;
 } Carre;
 
 extern Carre carres[10];
-
 
 
 void afficheFondecran();
